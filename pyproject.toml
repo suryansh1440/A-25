@@ -1,0 +1,28 @@
+[project]
+name = "agenticai"
+version = "0.1.0"
+description = "Learn Agentic ai"
+authors = [
+    {name = "suryansh1440",email = "suryansh1440@gmail.com"}
+]
+requires-python = ">=3.13,<4.0"
+package-mode = false
+dependencies = [
+    "langchain",
+    "fastapi",
+    "langchain-openai",
+    "ipython (>=9.11.0,<10.0.0)",
+    "langgraph",
+]
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.2,<10.0.0)",
+    "ruff (>=0.15.4,<0.16.0)",
+    "black (>=26.1.0,<27.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
