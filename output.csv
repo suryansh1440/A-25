@@ -1,0 +1,61 @@
+16,"[1, 4, 9]","Line 1: Calling `rdi.smartVec().vecEditMode(TA::VECD);` likely creates a temporary object and sets its mode, but does not modify any existing shared vector context. If the intention was to set the edit mode on a persistent vector, this line is ineffective because it does not retain the change; it only affects a temporary, unused object.
+
+Line 4: Similar to line 1, `rdi.smartVec()` is called without chaining or assigning its result. It probably returns a temporary object that is immediately discarded, so the subsequent method calls (`.label()`, `.copyLabel()`, etc.) that follow are missing the `rdi.smartVec()` reference, and may not operate on the intended vector context. This breaks the chain of method calls, leading to potential unintended behavior.
+
+Line 9: Again, `rdi.smartVec()` is invoked without chaining to the subsequent method calls. Like line 4, this likely results in setting properties or executing commands on a temporary object that isn’t retained or applied to the intended vector, thus making the commands ineffective or not applied to the correct context."
+32,[],No bugs found.
+25,"[2, 7]","Line 2: The code attempts to assign values to the array `write_data` using subscript notation, but since `write_data` is declared as an `ARRAY_I` type (likely a fixed-size array type specific to the environment), it may not support direct element assignment with `=`. Instead, an explicit method or function should be used to set array elements; otherwise, this could result in a compilation error or undefined behavior.
+
+Line 7: The call to `RDI_BEGIN()` occurs after the `rdi.protocol().pname(""i2c"").write(0x4,""data"").execute()`, which is generally the reverse of the intended sequence. The `RDI_BEGIN()` function typically initializes or starts a transaction, so it should precede the write operation, not follow it. Placing it after the write is a logical bug and may cause synchronization or protocol issues."
+10,[],No bugs found.
+26,[],No bugs found.
+23,"[1, 6, 28, 30, 31]","Line 1: The comment inaccurately suggests that the combined result of all readBit()/readData() calls can be obtained directly from the comment, but in reality, the code retrieves specific results from individual IDs using rdi.id(""id""), which don't necessarily aggregate all earlier reads. This may lead to confusion or incorrect assumptions about data retrieval.
+
+Line 6: RDI_BEGIN() is called without a matching RDI_END() in the same code block scope, which could cause resource management issues or improper initialization/termination of the read session. It should be properly paired with an RDI_END() to ensure safe usage.
+
+Line 28: ON_FIRST_INVOCATION_END() is called without a corresponding ON_FIRST_INVOCATION_BEGIN() in the same context, leading to potential logical errors or lifecycle management problems, as these macros are designed to bracket one complete invocation phase.
+
+Line 30: The code attempts to retrieve readBit results with rdi.id(""id"").getReadBit(""DATA2""), but ""id"" does not match any of the actual IDs (""id1"", ""id2"", etc.). This mismatch means the call will either fail or return invalid data; an appropriate ID string or variable should be used instead of the literal ""id"".
+
+Line 31: Similarly, rdi.id(""id"").getReadData(""DATA4"") suffers from the same issue: the ""id"" string does not correspond to any ID defined earlier. The call will not retrieve the expected data unless the correct ID name corresponding to the desired data is specified."
+4,"[3, 4]","Lines 3 and 4 have incorrect syntax for specifying voltage and current values. Using expressions like ""31 V"" and ""50 mA"" is invalid; instead, these values should be provided as numeric literals without units, and units should be implicitly handled within the API or specified through methods if required. This prevents syntax errors and ensures proper interpretation of test parameters."
+31,"[2, 4, 5, 6, 7, 9, 11]","Line 2: The method `burst()` is not a standard vector method, indicating a probable typo or misuse; perhaps the intended method was `clear()`, `reserve()`, or `resize()`. Using an invalid method like `burst()` will cause a compilation error.
+
+Line 4: `vec_port2` is used without prior declaration or initialization in the provided snippet, leading to a potential undefined variable error. It should be declared similarly to `vec_port1` before use.
+
+Line 5: The method `push_forward()` does not exist in the standard vector API; the correct method for adding elements is `push_back()`. Using `push_forward()` will result in a compilation error.
+
+Line 6: Same as line 4, `vec_port2` is used again without declaration or initialization, which would result in an undefined variable error.
+
+Line 7: The string ""rt"" contains an unescaped double quote at the end; it is a comment line but the string literal seems correctly formatted, so no bug here assuming the code formatting is accurate. However, if the actual string is incomplete or improperly closed, it would be a syntax error; but based on the snippet, this line may be correct.
+
+Line 9: Method chaining `.burstRunTime()` is used, which is non-standard and likely a typo; perhaps it should be `burstRunTime()` or just `runTime()` depending on the API. If `burstRunTime()` doesn't exist, this will cause a compilation error.
+
+Line 11: The variable `rdi` is used without declaration or initialization in the provided code snippet, which would lead to a compilation error unless declared elsewhere. Also, `ARRAY_I` must be defined; if it's a typedef or class, ensure it is included; otherwise, this line will cause an error."
+17,[],No bugs found.
+27,"[2, 3, 5]","Lines 2, 3, and 5 contain incorrect method chaining or parameter syntax that would cause runtime errors or unintended behavior.
+
+- Line 2: The method `dc()` is called on `rdi`, but then immediately chained with `.pin(""DPS_1,DPS_2"")` and `.imeasRange(100 uA)`. Typically, if `dc()` returns a controller object, chaining should be valid; however, the use of `""DPS_1,DPS_2""` as a string suggests multiple pins, but the method may expect a list or separate arguments. Also, `100 uA` lacks proper units or syntax; it likely needs to be `100uA` or a numeric value with explicit units if supported.
+
+- Line 3: Similar to line 2, the call to `.vForce(0.01 V)` is syntactically invalid because `V` is not a valid notation for specifying units in code. It should probably be `0.01` with a unit suffix if supported, e.g., `0.01V` or a separate parameter specifying the unit.
+
+- Line 5: The chain `.dc(""im1"").pin(""DPS_0,DPS_1"")` suggests calling `dc()` with `""im1""`, then `pin()` with a string containing multiple pins. If `dc()` is meant to configure a specific instrument, this might be correct, but if the sequence is inconsistent with the API, it could be invalid. More critically, the chain `.imeas().write()` may be incorrect: typically, measurement commands might require explicit start and stop commands, and `write()` might be misplaced — it might need to be `.measure()` or similar, depending on the API.
+
+**Summary:**  
+Line 2 improperly uses units (`100 uA`) and possibly incorrect pin specification; line 3 uses an invalid unit notation (`0.01 V`); line 5 potentially misuses method chaining and `write()` placement, possibly leading to execution errors."
+24,[3],"Line 3 has multiple issues: It attempts to call `interS` as if it were a method, but missing parentheses or parameters, suggesting a typo or incomplete method call. Additionally, the chain of method calls appears incomplete or inconsistent, which could lead to compilation errors. The probable intent was to call a method such as `.interS()` or `.interS(some_parameter)`, but as written, it is invalid syntax."
+14,"[3, 7, 8]","Line 3 attempts to configure a device with `rdi.dc(""a"").pin(""dig"").iForce(0).vMeas().execute();` but assuming that `rdi.dc()` returns a different object than `rdi.id()` or `rdi.`, this mismatch may cause issues if `rdi.dc()` does not support the subsequent method calls, indicating potentially misused or incompatible API calls.  
+
+Line 7 retrieves an alarm value using `rdi.id(""a"").getAlarmValue();` but if `rdi.id()` returns a value type rather than an object with a method `getAlarmValue()`, or if the method is not available or returns an incorrect type, this would lead to a malfunction or compile-time error.
+
+Line 8 calls `rdi.id(""a"").getAlarmBurstValue(""AVI"");` and assigns it to `ARRAY_D aryVal`, but if `getAlarmBurstValue()` does not exist, does not return `ARRAY_D`, or if `rdi.id()` does not support ""AVI"" as a parameter, then this will generate an incompatibility or runtime error."
+9,[2],"Line 2 is incorrect because ""wait(100 us)"" uses an invalid syntax for specifying a time duration; the correct way is likely ""wait(100us)"" without the space, as most APIs expect a continuous unit string, not separated by a space. Additionally, depending on the API, it might require an integer of milliseconds (e.g., ""wait(100)"") or a specific time format, but the current syntax is invalid."
+13,[],No bugs found.
+22,[7],"Line 7 attempts to call `rdi.id(1).getTempThresh(""02"")`, but this is inconsistent with the previous code, which used `rdi.pmux(1)` to set the temperature threshold. The method `id()` likely refers to retrieving sensor ID information, not accessing configuration or threshold values. Therefore, using `id()` and passing a string ""02"" to get the temperature threshold is incorrect; the correct method should be `rdi.pmux(1).getTempThresh()` or a similar function designed to retrieve the threshold, not `id()`."
+29,[],No bugs found.
+2,[],No bugs found.
+20,[4],"Line 4 lacks a semicolon at the end of the statement, which makes it syntactically incomplete. In Java, method calls must end with a semicolon to separate statements. Without it, line 6 is incorrectly treated as a continuation of line 4, leading to a syntax error or unexpected behavior during compilation or execution."
+11,"[2, 3]","Line 2: The method chain `iRange(2 mAh)` uses an apparent unit ""mAh"" (milliampere-hour) which is a measure of charge, not current, making it inappropriate and likely invalid for a current range setting; units need to be correct and consistent with expected parameter types.
+
+Line 3: The method chain `.iForce(1 uA)` uses ""uA"" (microamperes) improperly as a unit; typically, the method `iForce()` expects a numeric value without units, or with units if properly supported, but ""uA"" should be provided as a numeric value (e.g., `1e-6`) or with correct syntax, otherwise it might cause incorrect parsing or runtime errors."
+3,"[4, 5]","Lines 4 and 5 contain syntax errors related to the use of units and method chaining. On line 4, `vForce(31 V)` and `vForceRange(30 V)` incorrectly include units directly after numeric literals, which is invalid syntax; instead, units should be specified as separate arguments or using specified unit functions. Similarly, on line 5, `vForce(13.5 V)` and `iForceRange(5 uA)` improperly include units, and in line 5, `iClamp(-5 uA, 5 uA)` also improperly applies units to numerical literals. These mistakes prevent the code from compiling or running correctly."
